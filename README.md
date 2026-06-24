@@ -1,12 +1,91 @@
-# APS_Solver
-## Motivación:
-Satisfacción de Usuarios en Compras Online Motivación En este trabajo utilizaremos un conjunto de datos disponible en UCI Machine Learning Repository sobre la intención de compra de los usuarios en plataformas de comercio electrónico. Este dataset fue recopilado para el análisis de comportamiento de compra de los usuarios en línea y es una herramienta valiosa para desarrollar modelos predictivos en el contexto del marketing y la experiencia del cliente. 
-## La historia detrás de este conjunto de datos es la siguiente: 
-Imagina que trabajas como analista de datos en una tienda en línea internacional que ha notado un comportamiento de compra fluctuante en sus usuarios. Aunque muchos usuarios navegan por el sitio web y agregan productos al carrito, un porcentaje significativo de ellos no finaliza la compra, lo que genera una pérdida potencial de ventas. La empresa ha decidido recopilar datos detallados sobre el comportamiento de los usuarios en su plataforma con el fin de entender mejor las razones. 
+# Online Shoppers Purchase Intention — APS Solver
 
-El reto para la tienda en línea es claro: el mercado de comercio electrónico es extremadamente competitivo, y la fidelización de los clientes está cada vez más complicada. Los compradores de hoy buscan una experiencia de usuario rápida, conveniente y sin fricciones, pero las razones por las cuales abandonan sus compras no son siempre obvias. ¿Es la velocidad del sitio web? ¿El diseño de la página? ¿La disponibilidad de productos? ¿Las recomendaciones de productos o las ofertas de descuento? 
+Proyecto de machine learning para predecir si un usuario realizará una compra en una tienda online, basándose en su comportamiento de navegación.
 
-Para abordar este problema, la tienda ha recopilado una cantidad significativa de datos sobre el comportamiento de los usuarios en el sitio web, que incluyen información sobre las visitas, el t iempo de permanencia, la interacción con las páginas de productos y las características de los usuarios, como la duración de la sesión y la hora del día en que accedieron a la tienda. Sin embargo, el equipo de marketing y ventas no tiene claridad sobre qué factores están influyendo realmente en la intención de compra, y cómo pueden mejorar la experiencia del usuario para aumentar la tasa de conversión. Tu misión como analista de datos es ayudar a la tienda a entender estos patrones. Deberás  desarrollar un modelo predictivo que permita identificar si un usuario tiene alta o baja probabilidad de realizar una compra, basándose en su comportamiento y características demográficas. Con esta información, la tienda podrá ajustar su estrategia de marketing, optimizar la interfaz del sitio y mejorar la experiencia de usuario para incrementar las ventas y la fidelidad de los clientes. 
+---
 
+## Contexto del problema
 
+Una tienda online internacional detecta que muchos usuarios navegan y añaden productos al carrito pero no finalizan la compra. El objetivo es construir un modelo predictivo que identifique la **intención de compra** (`Revenue = True/False`) a partir de variables de sesión y comportamiento, para que el equipo de marketing pueda actuar en consecuencia.
 
+El dataset proviene del [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Online+Shoppers+Purchasing+Intention+Dataset) e incluye ~12.000 sesiones de usuarios con variables como duración de visita, tipo de página, mes, tipo de visitante y más.
+
+---
+
+## Estructura del repositorio
+
+```
+├── data/
+│   └── online_shoppers.csv         # Dataset de entrada (para estudiantes)
+├── models/
+│   ├── random_forest.py            # Clasificador Random Forest
+│   ├── knn.py                      # K-Nearest Neighbors
+│   ├── mlp.py                      # Red neuronal (MLP)
+│   ├── perceptron.py               # Perceptrón simple
+│   └── logistic_regression.py      # Regresión logística
+├── notebooks/
+│   └── EDA.ipynb                   # Análisis exploratorio de datos
+├── solver.py                       # Clase principal APS_Solver (RF + clustering)
+└── README.md
+```
+
+---
+
+## Instalación
+
+```bash
+pip install pandas numpy scikit-learn matplotlib
+```
+
+---
+
+## Uso rápido
+
+```python
+from solver import APS_Solver
+from sklearn.model_selection import train_test_split
+import pandas as pd
+
+# Cargar y dividir datos
+df = pd.read_csv("data/online_shoppers.csv")
+train_df, test_df = train_test_split(df, test_size=0.3, random_state=42, stratify=df["Revenue"])
+train_df.to_csv("online_shoppers_train.csv", index=False)
+test_df.to_csv("online_shoppers_test.csv", index=False)
+
+# Entrenar y evaluar
+model = APS_Solver()
+model.train_model("online_shoppers_train.csv")
+model.test_model("online_shoppers_test.csv")
+```
+
+---
+
+## Modelos disponibles
+
+Cada archivo en `models/` implementa la misma interfaz (`train_model`, `test_model`, `cluster_data`) con un clasificador distinto:
+
+| Archivo | Algoritmo |
+|---|---|
+| `random_forest.py` | Random Forest |
+| `knn.py` | K-Nearest Neighbors |
+| `mlp.py` | Red neuronal multicapa |
+| `perceptron.py` | Perceptrón (Rosenblatt) |
+| `logistic_regression.py` | Regresión logística |
+
+---
+
+## Pipeline de datos
+
+1. **Preprocesado** — eliminación de duplicados, imputación de nulos, normalización de categorías con `difflib`, One-Hot Encoding y escalado `StandardScaler`.
+2. **Clustering** — KMeans sobre el dataset completo con visualización PCA 2D para análisis de segmentos.
+3. **Clasificación** — entrenamiento con split 70/30 estratificado y evaluación con precisión, recall y F1-score.
+
+---
+
+## Métricas de evaluación
+
+Todos los modelos reportan:
+- Tasa de error
+- Precisión
+- Recall
+- F1-score
